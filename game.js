@@ -44,7 +44,7 @@ scene("game", () => {
         width:20,
         height:20,
         '=': [sprite('block'), solid()],
-        '$': [sprite('coin')],
+        '$': [sprite('coin'), 'coin'],
         '%': [sprite('surprise'), solid(), 'coin-surprise'],
         '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
         '}': [sprite('unboxed'), solid()],
@@ -53,7 +53,7 @@ scene("game", () => {
         '-': [sprite('pipe-top-left'), solid(), scale(0.5)],
         '+': [sprite('pipe-top-right'), solid(), scale(0.5)],
         '^': [sprite('evil-shroom'), solid()],
-        '#': [sprite('mushroom'), solid()],
+        '#': [sprite('mushroom'), solid(), 'mushroom', body()],
 
     }
 
@@ -74,36 +74,41 @@ scene("game", () => {
         let timer = 0
         let isBig = false
         return {
-            update(){
-                if(isBig){
-                    timer -=dt()
-                    if(timer<=0){
-                        this.smallify()
-                    }
-                }
-            },
-            isBig(){
-                return isBig
-            },
-            smallify(){
-                this.scale = vec2(1)
-                timer=0
-                isBig = false
-            },
-            biggify(time){
-                this.scale = vec2(2)
-                timer = time
-                isBig = true
+          update() {
+            if (isBig) {
+              timer -= dt()
+              if (timer <= 0) {
+                this.smallify()
+              }
             }
+          },
+          isBig() {
+            return isBig
+          },
+          smallify() {
+            this.scale = vec2(1)
+            timer = 0
+            isBig = false
+          },
+          biggify(time) {
+            this.scale = vec2(2)
+            timer = time
+            isBig = true     
+          }
         }
-    }
+      }
 
     const player = add([
         sprite('mario'), solid(),
         pos(30, 0),
         body(),
+        big(),
         origin('bot')
     ])
+
+    action('mushroom', (m)=> {
+        m.move(20, 0)
+    })
 
     player.on("headbump", (obj)=>{
         if(obj.is('coin-surprise')){
@@ -116,6 +121,17 @@ scene("game", () => {
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
         }
+    })
+
+    player.collides('mushroom', (m) => {
+        destroy(m)
+        player.biggify(6)
+      })
+
+    player.collides('coin', (c)=>{
+        destroy(c)
+        scoreLabel.value++
+        scoreLabel.text = scoreLabel.value
     })
 
     keyDown('left', ()=> {
