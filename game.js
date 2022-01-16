@@ -47,6 +47,7 @@ scene("game", () => {
         '$': [sprite('coin')],
         '%': [sprite('surprise'), solid(), 'coin-surprise'],
         '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
+        '}': [sprite('unboxed'), solid()],
         '(': [sprite('pipe-bottom-left'), solid(), scale(0.5)],
         ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
         '-': [sprite('pipe-top-left'), solid(), scale(0.5)],
@@ -69,6 +70,34 @@ scene("game", () => {
 
     add([text('level ' + 'test', pos(4,6))])
 
+    function big() {
+        let timer = 0
+        let isBig = false
+        return {
+            update(){
+                if(isBig){
+                    timer -=dt()
+                    if(timer<=0){
+                        this.smallify()
+                    }
+                }
+            },
+            isBig(){
+                return isBig
+            },
+            smallify(){
+                this.scale = vec2(1)
+                timer=0
+                isBig = false
+            },
+            biggify(time){
+                this.scale = vec2(2)
+                timer = time
+                isBig = true
+            }
+        }
+    }
+
     const player = add([
         sprite('mario'), solid(),
         pos(30, 0),
@@ -76,7 +105,18 @@ scene("game", () => {
         origin('bot')
     ])
 
-
+    player.on("headbump", (obj)=>{
+        if(obj.is('coin-surprise')){
+            gameLevel.spawn('$', obj.gridPos.sub(0,1))
+            destroy(obj)
+            gameLevel.spawn('}', obj.gridPos.sub(0,0))
+        }
+        if(obj.is('mushroom-surprise')){
+            gameLevel.spawn('#', obj.gridPos.sub(0,1))
+            destroy(obj)
+            gameLevel.spawn('}', obj.gridPos.sub(0,0))
+        }
+    })
 
     keyDown('left', ()=> {
         player.move(-MOVE_SPEED, 0)
