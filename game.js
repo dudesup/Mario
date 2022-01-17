@@ -61,7 +61,20 @@ scene("game", ({level, score}) => {
         '£                        x x x x  x       -+£',
         '£               z   z  x x x x x  x       ()£',
         '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-    ]
+    ],
+    [
+      '                                              ',
+      '                                              ',
+      '                                              ',
+      '                                              ',
+      '                       =*=%=                  ',
+      '                  ====                        ',
+      '       %  =*=%=                               ',
+      '                        =                     ',
+      '   ===                          -+            ',
+      '                      ^       ^ ()            ',
+      '===================================    =======',
+  ],
 
 
 ]
@@ -69,7 +82,7 @@ scene("game", ({level, score}) => {
     const levelCfg = {
         width:20,
         height:20,
-        '=': [sprite('block'), solid()],
+        '=': [sprite('block'), solid(), 'block'],
         '$': [sprite('coin'), 'coin'],
         '%': [sprite('surprise'), solid(), 'coin-surprise'],
         '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
@@ -78,7 +91,7 @@ scene("game", ({level, score}) => {
         ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
         '-': [sprite('pipe-top-left'), solid(), scale(0.5), 'pipe'],
         '+': [sprite('pipe-top-right'), solid(), scale(0.5), 'pipe'],
-        '^': [sprite('evil-shroom'), solid(), 'dangerous'],
+        '^': [sprite('evil-shroom'), solid(), 'dangerous', body()],
         '#': [sprite('mushroom'), solid(), 'mushroom', body()],
         '!': [sprite('blue-block'), solid(), scale(0.5)],
         '£': [sprite('blue-brick'), solid(), scale(0.5)],
@@ -154,6 +167,9 @@ scene("game", ({level, score}) => {
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
         }
+        if(obj.is('block')){
+          destroy(obj)
+        }
     })
 
     player.collides('mushroom', (m) => {
@@ -167,7 +183,8 @@ scene("game", ({level, score}) => {
         scoreLabel.text = scoreLabel.value
     })
 
-    const ENEMY_SPEED = 20
+
+    const ENEMY_SPEED = 40
 
     action('dangerous', (d) =>{
         d.move(-ENEMY_SPEED, 0)
